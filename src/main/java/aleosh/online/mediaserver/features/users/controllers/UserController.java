@@ -40,8 +40,8 @@ public class UserController {
             @Parameter(description = "Datos del usuario (JSON)", required = true, schema = @Schema(implementation = CreateUserDto.class))
             @RequestPart("user") CreateUserDto createUserDto,
 
-            @Parameter(description = "Foto de perfil del usuario", required = true)
-            @RequestPart("photo")MultipartFile file
+            @Parameter(description = "Foto de perfil del usuario", required = false)
+            @RequestPart(value = "photo", required = false)MultipartFile file
             ) {
         UserResponseDto userResponseDto = userService.createUser(createUserDto, file);
 

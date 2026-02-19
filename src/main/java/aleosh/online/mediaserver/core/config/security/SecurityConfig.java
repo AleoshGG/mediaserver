@@ -1,19 +1,15 @@
 package aleosh.online.mediaserver.core.config.security;
 
-import aleosh.online.mediaserver.auth.services.impl.UserDetailsServiceImpl;
 import aleosh.online.mediaserver.core.config.jwt.JwtTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,17 +26,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // NOTA: Eliminamos el parámetro 'AuthenticationProvider' y la llamada .authenticationProvider()
+        // Spring Security usará automáticamente la configuración global.
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider)
+                // Eliminada la línea problemática: .authenticationProvider(...)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -48,22 +47,11 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        // Al llamar a esto, Spring busca automáticamente tu UserDetailsService y PasswordEncoder
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider(
-            org.springframework.security.core.userdetails.UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder
-    ) {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        // Si esto sigue fallando, usa la Causa 1 (Fully Qualified Name)
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
-
-        return authProvider;
-    }
+    // ELIMINADO: El método @Bean authenticationProvider(...) ya no es necesario.
 
     @Bean
     public PasswordEncoder passwordEncoder() {

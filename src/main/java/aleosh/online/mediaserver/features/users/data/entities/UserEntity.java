@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Users", indexes = {
-        @Index(name = "idx_username", columnList = "username")
-})
+@Table(name = "Users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +18,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(name = "email", nullable = false, unique = true)
