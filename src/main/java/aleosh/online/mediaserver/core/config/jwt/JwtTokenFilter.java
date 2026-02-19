@@ -1,5 +1,6 @@
 package aleosh.online.mediaserver.core.config.jwt;
 
+import aleosh.online.mediaserver.auth.services.impl.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,8 +24,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtProvider jwtProvider;
 
-    //@Autowired
-    //private UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -41,14 +43,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 // 4. Cargamos los detalles del usuario desde la base de datos
                 // (Esto asegura que el usuario siga existiendo y tenga roles actualizados)
-                //UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 // 5. Creamos la autenticación
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
-                                "",//userDetails,
+                                userDetails,
                                 null,
-                                null//userDetails.getAuthorities()
+                                userDetails.getAuthorities()
                         );
 
                 // 6. Establecemos la autenticación en el contexto de seguridad
