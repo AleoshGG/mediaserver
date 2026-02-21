@@ -3,6 +3,7 @@ package aleosh.online.mediaserver.features.jam.services.impl;
 import aleosh.online.mediaserver.features.jam.data.entities.JamEntity;
 import aleosh.online.mediaserver.features.jam.data.repositories.JamMemberRepository;
 import aleosh.online.mediaserver.features.jam.data.repositories.JamRepository;
+import aleosh.online.mediaserver.features.jam.services.IJamEventPublisher;
 import aleosh.online.mediaserver.features.jam.services.IPlaybackOrchestrator;
 import aleosh.online.mediaserver.features.spotify.services.ISpotifyAuthService;
 import aleosh.online.mediaserver.features.spotify.services.ISpotifyWebClient;
@@ -22,14 +23,21 @@ public class PlaybackOrchestratorImpl implements IPlaybackOrchestrator {
     private final ISpotifyAuthService spotifyAuthService;
     private final ISpotifyWebClient spotifyWebClient;
 
-    public PlaybackOrchestratorImpl(JamRepository jamRepository, JamMemberRepository jamMemberRepository,
-                                    IUserRepository userRepository, ISpotifyAuthService spotifyAuthService,
-                                    ISpotifyWebClient spotifyWebClient) {
+    private IJamEventPublisher  jamEventPublisher;
+
+    public PlaybackOrchestratorImpl(JamRepository jamRepository,
+                                    JamMemberRepository jamMemberRepository,
+                                    IUserRepository userRepository,
+                                    ISpotifyAuthService spotifyAuthService,
+                                    ISpotifyWebClient spotifyWebClient,
+                                    IJamEventPublisher jamEventPublisher
+    ) {
         this.jamRepository = jamRepository;
         this.jamMemberRepository = jamMemberRepository;
         this.userRepository = userRepository;
         this.spotifyAuthService = spotifyAuthService;
         this.spotifyWebClient = spotifyWebClient;
+        this.jamEventPublisher = jamEventPublisher;
     }
 
     // Método central para validar todo antes de tocar Spotify
@@ -53,17 +61,20 @@ public class PlaybackOrchestratorImpl implements IPlaybackOrchestrator {
     public void play(String joinCode, String username) {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         spotifyWebClient.play(speakerToken);
+        jamEventPublisher.broadcastPlaybackState(joinCode, "PLAYING", username);
     }
 
     @Override
     public void pause(String joinCode, String username) {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         spotifyWebClient.pause(speakerToken);
+        jamEventPublisher.broadcastPlaybackState(joinCode, "PAUSED", username);
     }
 
     @Override
     public void next(String joinCode, String username) {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         spotifyWebClient.nextTrack(speakerToken);
+        jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_CHANGED", username);
     }
 }
