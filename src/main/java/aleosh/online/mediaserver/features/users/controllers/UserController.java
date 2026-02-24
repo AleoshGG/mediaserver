@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,23 +53,17 @@ public class UserController {
         return response.buildResponseEntity();
     }
 
-    @Operation(summary = "Obtener usuario por ID", description = "Busca un usuario existente por su identificador único.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content)
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse<UserResponseDto>> getUserById(
-            @Parameter(description = "ID único del usuario", example = "123e4567-e89b-12d3-a456-426614174000")
-            @PathVariable String id
-    ) {
-        UserResponseDto user = userService.getUserById(id);
-
-        BaseResponse<UserResponseDto> response = new BaseResponse<>(
-                true, user, "Usuario encontrado correctamente", HttpStatus.OK
-        );
-
-        return response.buildResponseEntity();
+    @Operation(summary = "Obtener mi perfil", description = "Devuelve los datos del usuario autenticado usando el token JWT.")
+    @GetMapping("/me")
+    public ResponseEntity<BaseResponse<UserResponseDto>> getMyProfile() {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserResponseDto user = userService.getUserByUsername(currentUsername);
+        return new BaseResponse<>(true, user, "Perfil obtenido correctamente", HttpStatus.OK)
+                .buildResponseEntity();
     }
 
 }

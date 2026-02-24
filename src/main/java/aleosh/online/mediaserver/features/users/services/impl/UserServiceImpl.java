@@ -73,4 +73,11 @@ public class UserServiceImpl implements IUserService {
                 .map(userMapper::toUserResponseDto)
                 .orElseThrow(()-> new RuntimeException("User not found"));
     }
+
+    @Override
+    public UserResponseDto getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(userMapper::toUserResponseDto)
+                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+    }
 }

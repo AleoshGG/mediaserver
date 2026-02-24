@@ -7,4 +7,5 @@ import org.springframework.web.multipart.MultipartFile;
 public interface IUserService {
     UserResponseDto createUser(CreateUserDto createUserDto, MultipartFile file);
     UserResponseDto getUserById(String id);
+    UserResponseDto getUserByUsername(String username);
 }
