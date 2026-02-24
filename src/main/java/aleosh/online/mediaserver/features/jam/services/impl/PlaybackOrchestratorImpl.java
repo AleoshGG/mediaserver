@@ -62,28 +62,44 @@ public class PlaybackOrchestratorImpl implements IPlaybackOrchestrator {
     public void play(String joinCode, String username) {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         spotifyWebClient.play(speakerToken);
-        jamEventPublisher.broadcastPlaybackState(joinCode, "PLAYING", username);
+
+        SpotifyPlayerStateDto state = spotifyWebClient.getCurrentPlaybackState(speakerToken);
+        state.setPlaying(true); // Forzamos el valor por si Spotify tarda en reflejarlo
+        jamEventPublisher.broadcastPlaybackState(joinCode, "PLAYING", username, state);
     }
 
     @Override
     public void pause(String joinCode, String username) {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         spotifyWebClient.pause(speakerToken);
-        jamEventPublisher.broadcastPlaybackState(joinCode, "PAUSED", username);
+
+        SpotifyPlayerStateDto state = spotifyWebClient.getCurrentPlaybackState(speakerToken);
+        state.setPlaying(false); // Forzamos el valor
+        jamEventPublisher.broadcastPlaybackState(joinCode, "PAUSED", username, state);
     }
 
     @Override
     public void next(String joinCode, String username) {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         spotifyWebClient.nextTrack(speakerToken);
-        jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_CHANGED", username);
+
+        // TRUCO: Esperamos medio segundo para que Spotify actualice su base de datos interna
+        try { Thread.sleep(600); } catch (InterruptedException e) {}
+
+        SpotifyPlayerStateDto state = spotifyWebClient.getCurrentPlaybackState(speakerToken);
+        jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_CHANGED", username, state);
     }
 
     @Override
     public void previous(String joinCode, String username) {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
-        spotifyWebClient.previousTrack(speakerToken);
-        jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_CHANGED", username);
+        spotifyWebClient.previousTrack(speakerToken); // Asumiendo que ya agregaste esto en el paso anterior
+
+        // TRUCO: Esperamos medio segundo
+        try { Thread.sleep(600); } catch (InterruptedException e) {}
+
+        SpotifyPlayerStateDto state = spotifyWebClient.getCurrentPlaybackState(speakerToken);
+        jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_CHANGED", username, state);
     }
 
     @Override
