@@ -2,6 +2,7 @@ package aleosh.online.mediaserver.features.jam.controllers;
 
 import aleosh.online.mediaserver.core.dtos.BaseResponse;
 import aleosh.online.mediaserver.features.jam.services.IPlaybackOrchestrator;
+import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyPlayerStateDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +48,19 @@ public class JamActionController {
     public ResponseEntity<BaseResponse<Void>> nextTrack(@PathVariable String joinCode) {
         orchestrator.next(joinCode, getAuthenticatedUsername());
         return new BaseResponse<Void>(true, null, "Siguiente canción", HttpStatus.OK).buildResponseEntity();
+    }
+
+    @Operation(summary = "Canción anterior", description = "Regresa a la pista anterior de Spotify.")
+    @PostMapping("/previous")
+    public ResponseEntity<BaseResponse<Void>> previousTrack(@PathVariable String joinCode) {
+        orchestrator.previous(joinCode, getAuthenticatedUsername());
+        return new BaseResponse<Void>(true, null, "Canción anterior", HttpStatus.OK).buildResponseEntity();
+    }
+
+    @Operation(summary = "Estado del reproductor", description = "Obtiene la canción actual, la portada y el progreso.")
+    @GetMapping("/state")
+    public ResponseEntity<BaseResponse<SpotifyPlayerStateDto>> getPlayerState(@PathVariable String joinCode) {
+        SpotifyPlayerStateDto state = orchestrator.getCurrentState(joinCode, getAuthenticatedUsername());
+        return new BaseResponse<>(true, state, "Estado obtenido", HttpStatus.OK).buildResponseEntity();
     }
 }

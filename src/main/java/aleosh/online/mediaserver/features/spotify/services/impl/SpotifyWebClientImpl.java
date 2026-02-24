@@ -1,6 +1,7 @@
 package aleosh.online.mediaserver.features.spotify.services.impl;
 
 import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyAlbumDto;
+import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyPlayerStateDto;
 import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyTrackDto;
 import aleosh.online.mediaserver.features.spotify.services.ISpotifyWebClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,5 +96,53 @@ public class SpotifyWebClientImpl implements ISpotifyWebClient {
                     images.isEmpty() ? "" : (String) images.get(0).get("url")
             );
         }).toList();
+    }
+
+    @Override
+    public void previousTrack(String accessToken) {
+        HttpEntity<Void> request = new HttpEntity<>(createAuthHeaders(accessToken));
+        restTemplate.exchange(spotify_api_url + "/me/player/previous", HttpMethod.POST, request, Void.class);
+    }
+
+    @Override
+    public SpotifyPlayerStateDto getCurrentPlaybackState(String accessToken) {
+        HttpEntity<Void> request = new HttpEntity<>(createAuthHeaders(accessToken));
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    spotify_api_url + "/me/player",
+                    HttpMethod.GET, request, Map.class);
+
+            // Si Spotify no está activo o no hay música
+            if (response.getBody() == null || response.getStatusCode().value() == 204) {
+                return new SpotifyPlayerStateDto(false, 0L, null);
+            }
+
+            Map<String, Object> body = response.getBody();
+            boolean isPlaying = (Boolean) body.get("is_playing");
+            Number progressMs = (Number) body.get("progress_ms");
+
+            Map<String, Object> item = (Map<String, Object>) body.get("item");
+            if (item == null) {
+                return new SpotifyPlayerStateDto(isPlaying, progressMs.longValue(), null);
+            }
+
+            List<Map<String, Object>> artists = (List<Map<String, Object>>) item.get("artists");
+            Map<String, Object> album = (Map<String, Object>) item.get("album");
+            List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
+
+            SpotifyTrackDto track = new SpotifyTrackDto(
+                    (String) item.get("id"),
+                    (String) item.get("name"),
+                    (String) artists.get(0).get("name"),
+                    images.isEmpty() ? "" : (String) images.get(0).get("url")
+            );
+
+            return new SpotifyPlayerStateDto(isPlaying, progressMs.longValue(), track);
+
+        } catch (Exception e) {
+            // Si hay cualquier otro error, asumimos que no hay nada sonando
+            return new SpotifyPlayerStateDto(false, 0L, null);
+        }
     }
 }

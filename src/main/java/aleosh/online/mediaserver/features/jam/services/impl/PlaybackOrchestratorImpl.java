@@ -5,6 +5,7 @@ import aleosh.online.mediaserver.features.jam.data.repositories.JamMemberReposit
 import aleosh.online.mediaserver.features.jam.data.repositories.JamRepository;
 import aleosh.online.mediaserver.features.jam.services.IJamEventPublisher;
 import aleosh.online.mediaserver.features.jam.services.IPlaybackOrchestrator;
+import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyPlayerStateDto;
 import aleosh.online.mediaserver.features.spotify.services.ISpotifyAuthService;
 import aleosh.online.mediaserver.features.spotify.services.ISpotifyWebClient;
 import aleosh.online.mediaserver.features.users.domain.repositories.IUserRepository;
@@ -76,5 +77,18 @@ public class PlaybackOrchestratorImpl implements IPlaybackOrchestrator {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         spotifyWebClient.nextTrack(speakerToken);
         jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_CHANGED", username);
+    }
+
+    @Override
+    public void previous(String joinCode, String username) {
+        String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
+        spotifyWebClient.previousTrack(speakerToken);
+        jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_CHANGED", username);
+    }
+
+    @Override
+    public SpotifyPlayerStateDto getCurrentState(String joinCode, String username) {
+        String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
+        return spotifyWebClient.getCurrentPlaybackState(speakerToken);
     }
 }
