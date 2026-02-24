@@ -63,4 +63,14 @@ public class JamActionController {
         SpotifyPlayerStateDto state = orchestrator.getCurrentState(joinCode, getAuthenticatedUsername());
         return new BaseResponse<>(true, state, "Estado obtenido", HttpStatus.OK).buildResponseEntity();
     }
+
+    @Operation(summary = "Encolar canción", description = "Añade una canción a la cola de reproducción de la Jam actual.")
+    @PostMapping("/queue")
+    public ResponseEntity<BaseResponse<Void>> queueTrack(
+            @PathVariable String joinCode,
+            @RequestParam String trackId) { // Recibimos el ID de la canción por parámetro
+
+        orchestrator.queueTrack(joinCode, getAuthenticatedUsername(), trackId);
+        return new BaseResponse<Void>(true, null, "Canción añadida a la cola", HttpStatus.OK).buildResponseEntity();
+    }
 }

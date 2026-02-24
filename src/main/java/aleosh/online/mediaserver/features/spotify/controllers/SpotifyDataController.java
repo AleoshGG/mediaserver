@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -52,5 +53,13 @@ public class SpotifyDataController {
     public ResponseEntity<BaseResponse<List<SpotifyTrackDto>>> getMyTopTracks() {
         List<SpotifyTrackDto> tracks = spotifyWebClient.getMyTopTracks(getValidUserToken());
         return new BaseResponse<>(true, tracks, "Top tracks recuperado", HttpStatus.OK).buildResponseEntity();
+    }
+
+    @Operation(summary = "Buscar canciones", description = "Busca canciones en el catálogo de Spotify usando una palabra clave.")
+    @GetMapping("/search")
+    public ResponseEntity<BaseResponse<List<SpotifyTrackDto>>> searchTracks(@RequestParam String q) {
+        // Usamos el token del usuario actual (el que hace la búsqueda)
+        List<SpotifyTrackDto> results = spotifyWebClient.searchTracks(getValidUserToken(), q);
+        return new BaseResponse<>(true, results, "Resultados de búsqueda", HttpStatus.OK).buildResponseEntity();
     }
 }

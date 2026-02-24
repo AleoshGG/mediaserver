@@ -16,4 +16,7 @@ public interface ISpotifyWebClient {
 
     void previousTrack(String accessToken);
     SpotifyPlayerStateDto getCurrentPlaybackState(String accessToken);
+
+    List<SpotifyTrackDto> searchTracks(String accessToken, String query);
+    void queueTrack(String accessToken, String trackUri);
 }

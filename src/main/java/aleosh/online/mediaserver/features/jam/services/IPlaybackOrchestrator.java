@@ -9,4 +9,6 @@ public interface IPlaybackOrchestrator {
 
     void previous(String joinCode, String username);
     SpotifyPlayerStateDto getCurrentState(String joinCode, String username);
+
+    void queueTrack(String joinCode, String username, String trackId);
 }

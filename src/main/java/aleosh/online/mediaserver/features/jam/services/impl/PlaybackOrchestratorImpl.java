@@ -107,4 +107,20 @@ public class PlaybackOrchestratorImpl implements IPlaybackOrchestrator {
         String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
         return spotifyWebClient.getCurrentPlaybackState(speakerToken);
     }
+
+    @Override
+    public void queueTrack(String joinCode, String username, String trackId) {
+        // 1. Validamos permisos y sacamos el token del altavoz (Dueño)
+        String speakerToken = getSpeakerTokenIfAuthorized(joinCode, username);
+
+        // 2. Formateamos el ID a URI de Spotify
+        String trackUri = "spotify:track:" + trackId;
+
+        // 3. Lo metemos en la cola del dueño
+        spotifyWebClient.queueTrack(speakerToken, trackUri);
+
+        // (Opcional pero recomendado) Avisamos a la sala que alguien agregó una canción
+        // Para no pedir todo el state de nuevo, mandamos null o el state actual.
+        jamEventPublisher.broadcastPlaybackState(joinCode, "TRACK_QUEUED", username, null);
+    }
 }
