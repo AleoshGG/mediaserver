@@ -58,4 +58,14 @@ public class JamController {
         return new BaseResponse<Void>(true, null, "Has abandonado la Jam correctamente", HttpStatus.OK)
                 .buildResponseEntity();
     }
+
+    @Operation(summary = "Obtener enlace de invitación", description = "Genera un Deep Link para invitar a otros usuarios a la Jam.")
+    @GetMapping("/{joinCode}/share")
+    public ResponseEntity<BaseResponse<String>> getShareLink(@PathVariable String joinCode) {
+
+        String deepLink = jamService.generateJoinLink(joinCode);
+
+        return new BaseResponse<>(true, deepLink, "Enlace de invitación generado", HttpStatus.OK)
+                .buildResponseEntity();
+    }
 }

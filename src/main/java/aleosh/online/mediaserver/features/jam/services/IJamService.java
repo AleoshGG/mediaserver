@@ -6,4 +6,6 @@ public interface IJamService {
     JamResponseDto createJam(String creatorUsername);
     JamResponseDto joinJam(String joinCode, String username);
     void leaveJam(String joinCode, String username);
+
+    String generateJoinLink(String joinCode);
 }

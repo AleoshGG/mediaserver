@@ -102,6 +102,17 @@ public class JamServiceImpl implements IJamService {
         }
     }
 
+    @Override
+    public String generateJoinLink(String joinCode) {
+        // 1. Verificamos que la sala exista y siga abierta
+        JamEntity jam = jamRepository.findByJoinCodeAndIsActiveTrue(joinCode)
+                .orElseThrow(() -> new RuntimeException("No se puede generar enlace: La Jam no existe o ya fue cerrada"));
+
+        // 2. Generamos el Deep Link
+        // Nota: En un entorno de producción avanzado, podrías leer "musicjam://" desde el application.properties
+        return "musicjam://join/" + jam.getJoinCode();
+    }
+
     private void addMemberToJam(UUID jamId, UUID userId) {
         JamMemberEntity member = new JamMemberEntity();
         member.setJamId(jamId);

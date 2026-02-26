@@ -4,7 +4,6 @@ import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyAlbu
 import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyPlayerStateDto;
 import aleosh.online.mediaserver.features.spotify.data.dtos.response.SpotifyTrackDto;
 import aleosh.online.mediaserver.features.spotify.services.ISpotifyWebClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -151,7 +150,7 @@ public class SpotifyWebClientImpl implements ISpotifyWebClient {
         HttpEntity<Void> request = new HttpEntity<>(createAuthHeaders(accessToken));
 
         // Usamos {query} como variable para que RestTemplate codifique los espacios automáticamente
-        String urlTemplate = spotify_api_url + "/search?q={query}&type=track&limit=2";
+        String urlTemplate = spotify_api_url + "/search?q={query}&type=track&limit=9";
 
         // Pasamos 'query' como último parámetro
         ResponseEntity<Map> response = restTemplate.exchange(
