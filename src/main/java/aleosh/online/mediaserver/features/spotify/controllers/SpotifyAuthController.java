@@ -39,4 +39,23 @@ public class SpotifyAuthController {
 
         return response.buildResponseEntity();
     }
+
+    @Operation(summary = "Obtener Access Token de Spotify", description = "Devuelve el Access Token válido del usuario. Si caducó, el servidor lo refresca automáticamente antes de devolverlo.")
+    @GetMapping("/token")
+    public ResponseEntity<BaseResponse<String>> getAccessToken() {
+
+        // 1. Obtener quién es el usuario que hace la petición
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        // 2. Pedirle al servicio el token válido (ya refrescado si hacía falta)
+        String validAccessToken = spotifyAuthService.getValidAccessTokenByUsername(currentUsername);
+
+        // 3. Devolverlo a la app móvil
+        BaseResponse<String> response = new BaseResponse<>(
+                true, validAccessToken, "Token de Spotify obtenido exitosamente", HttpStatus.OK
+        );
+
+        return response.buildResponseEntity();
+    }
 }

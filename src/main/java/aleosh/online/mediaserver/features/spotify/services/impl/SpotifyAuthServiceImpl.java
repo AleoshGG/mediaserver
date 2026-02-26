@@ -41,6 +41,16 @@ public class SpotifyAuthServiceImpl implements ISpotifyAuthService {
     }
 
     @Override
+    public String getValidAccessTokenByUsername(String username) {
+        // Buscamos al usuario para obtener su UUID
+        User user = userRepository.getByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Reutilizamos tu método que valida y refresca el token automáticamente
+        return getValidAccessToken(user.getId());
+    }
+
+    @Override
     public void exchangeCodeForTokens(String code, String username) {
         // 1. Buscamos el UUID de tu usuario en la BD
         Optional<User> userOpt = userRepository.getByUsername(username);
