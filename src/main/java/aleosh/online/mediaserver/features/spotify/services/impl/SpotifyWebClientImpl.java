@@ -92,7 +92,8 @@ public class SpotifyWebClientImpl implements ISpotifyWebClient {
                     (String) track.get("id"),
                     (String) track.get("name"),
                     (String) artists.get(0).get("name"),
-                    images.isEmpty() ? "" : (String) images.get(0).get("url")
+                    images.isEmpty() ? "" : (String) images.get(0).get("url"),
+                    ((Number) track.get("duration_ms")).longValue()
             );
         }).toList();
     }
@@ -134,7 +135,8 @@ public class SpotifyWebClientImpl implements ISpotifyWebClient {
                     (String) item.get("id"),
                     (String) item.get("name"),
                     (String) artists.get(0).get("name"),
-                    images.isEmpty() ? "" : (String) images.get(0).get("url")
+                    images.isEmpty() ? "" : (String) images.get(0).get("url"),
+                    ((Number) item.get("duration_ms")).longValue()
             );
 
             return new SpotifyPlayerStateDto(isPlaying, progressMs.longValue(), track);
@@ -173,7 +175,8 @@ public class SpotifyWebClientImpl implements ISpotifyWebClient {
                     (String) track.get("id"),
                     (String) track.get("name"),
                     (String) artists.get(0).get("name"),
-                    images.isEmpty() ? "" : (String) images.get(0).get("url")
+                    images.isEmpty() ? "" : (String) images.get(0).get("url"),
+                    ((Number) track.get("duration_ms")).longValue()
             );
         }).toList();
     }
